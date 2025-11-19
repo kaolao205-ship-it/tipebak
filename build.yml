@@ -1,0 +1,51 @@
+name: Android APK Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Kodları Çek
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. Java Kurulumu (Android derlemek için şart)
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    # 3. Flutter Kurulumu (Flet arka planda Flutter kullanır)
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+
+    # 4. Python Kurulumu
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    # 5. Bağımlılıkları Yükle
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install flet
+
+    # 6. APK'yı Derle (Flet Build Komutu)
+    - name: Build APK
+      run: |
+        flet build apk --verbose
+
+    # 7. Oluşan APK'yı Yükle (Artifacts)
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: duygu-ressami-apk
+        path: build/apk/app-release.apk
